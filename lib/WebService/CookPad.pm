@@ -4,6 +4,7 @@ use Any::Moose;
 our $VERSION = '0.01';
 
 use WebService::CookPad::Keyword;
+use WebService::CookPad::Search;
 
 use Carp;
 use LWP::UserAgent;
@@ -134,6 +135,7 @@ sub search {
     $params{size} ||= 10;
 
     my $res = $self->_call('search', \%params);
+    WebService::CookPad::Search->new_from_xml($res);
 }
 
 __PACKAGE__->meta->make_immutable;
