@@ -6,6 +6,7 @@ our $VERSION = '0.01';
 use WebService::CookPad::Keyword;
 use WebService::CookPad::Search;
 use WebService::CookPad::HotRecipe;
+use WebService::CookPad::DetailRecipe;
 
 use Carp;
 use LWP::UserAgent;
@@ -58,7 +59,7 @@ sub _build_ua {
 sub _build_xs {
     my ($self) = @_;
 
-    my $xs = XML::Simple->new( KeyAttr => [] );
+    my $xs = XML::Simple->new( KeyAttr => [], ForceArray => [qr/^ingredient$/, qr/^step$/] );
 }
 
 sub _auth {
@@ -129,16 +130,6 @@ sub popular_keywords {
     }
 }
 
-sub search {
-    my ($self, %params) = @_;
-
-    croak 'keyword required' unless $params{keyword};
-    $params{size} ||= 10;
-
-    my $res = $self->_call('search', \%params);
-    WebService::CookPad::Search->new_from_xml($res);
-}
-
 sub hot {
     my ($self) = @_;
 
@@ -164,6 +155,38 @@ sub hot {
     else {
         croak 'Invalid response from server';
     }
+}
+
+sub search {
+    my ($self, %params) = @_;
+
+    croak 'keyword required' unless $params{keyword};
+    $params{size} ||= 10;
+
+    my $res = $self->_call('search', \%params);
+    WebService::CookPad::Search->new_from_xml($res);
+}
+
+sub recipe {
+    my ($self, %params) = @_;
+
+    croak 'id required' unless $params{id};
+
+    my $res = $self->_call('recipe', \%params);
+
+    if (my $recipe = $res->{info}) {
+        return WebService::CookPad::DetailRecipe->new(
+            map({ $_ => !ref($recipe->{$_}) ? $recipe->{$_} || '' : '' }
+                qw/advice author description history photo serving title history/),
+            author_image    => $recipe->{'author-image'},
+            tsukurepo_count => $recipe->{'tsukurepo-count'}{content},
+            tsukurepo_users => $recipe->{'tsukurepo-users'}{content},
+            ingredients     => $res->{ingredients}{ingredient},
+            steps           => $res->{steps}{step},
+        );
+    }
+
+    return;
 }
 
 __PACKAGE__->meta->make_immutable;
