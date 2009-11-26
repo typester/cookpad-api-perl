@@ -5,6 +5,7 @@ our $VERSION = '0.01';
 
 use WebService::CookPad::Keyword;
 use WebService::CookPad::Search;
+use WebService::CookPad::HotRecipe;
 
 use Carp;
 use LWP::UserAgent;
@@ -136,6 +137,33 @@ sub search {
 
     my $res = $self->_call('search', \%params);
     WebService::CookPad::Search->new_from_xml($res);
+}
+
+sub hot {
+    my ($self) = @_;
+
+    my $res = $self->_call('hot');
+
+    if (my $recipe = $res->{Recipe}) {
+        return map {
+            WebService::CookPad::HotRecipe->new(
+                id              => $_->{id}{content},
+                title           => $_->{title} || '',
+                description     => $_->{description} || '',
+                author          => $_->{author} || '',
+                author_image    => $_->{'author-image'} || '',
+                ingredient      => !ref($_->{ingredient}) ? $_->{ingredient} || '' : '',
+                photo           => $_->{photo} || '',
+                published       => $_->{published} || '',
+                thumbnail       => $_->{thumbnail} || '',
+                tsukurepo_count => $_->{'tsukurepo-count'}{content} || 0,
+                accepted        => $_->{accepted}{content} || 0,
+            );
+        } @$recipe;
+    }
+    else {
+        croak 'Invalid response from server';
+    }
 }
 
 __PACKAGE__->meta->make_immutable;
