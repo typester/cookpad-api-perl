@@ -1,27 +1,35 @@
-This is Perl module WebService::CookPad.
+NAME
+    WebService::CookPad - Module abstract (<= 44 characters) goes here
 
-INSTALLATION
+SYNOPSIS
+        use WebService::CookPad;
+        
+    my $api = WebService::CookPad->new(
+            uuid => 'your iphone unique identifier',
+            key  => 'api key',
+        );
+        
+    # popular_keywords
+        for my $keyword ($api->popular_keywords) {
+            print sprintf("%d: %s\n", $keyword->rank, $keyword->name);
+        }
 
-WebService::CookPad installation is straightforward. If your CPAN shell is set up,
-you should just be able to do
+DESCRIPTION
+    Stub documentation for this module was created by ExtUtils::ModuleMaker.
+    It looks like the author of the extension was negligent enough to leave
+    the stub unedited.
 
-    % cpan WebService::CookPad
+    Blah blah blah.
 
-Download it, unpack it, then build it as per the usual:
+AUTHOR
+    Daisuke Murase <typester@cpan.org>
 
-    % perl Makefile.PL
-    % make && make test
+COPYRIGHT AND LICENSE
+    Copyright (c) 2009 by Daisuke Murase
 
-Then install it:
+    This program is free software; you can redistribute it and/or modify it
+    under the same terms as Perl itself.
 
-    % make install
+    The full text of the license can be found in the LICENSE file included
+    with this module.
 
-DOCUMENTATION
-
-WebService::CookPad documentation is available as in POD. So you can do:
-
-    % perldoc WebService::CookPad
-
-to read the documentation online with your favorite pager.
-
-Daisuke Murase
